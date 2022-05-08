@@ -1,0 +1,9 @@
+{
+    "python.autoComplete.extraPaths": [
+        "/home/pi/.vscode-server/extensions/stefanwehr.write-your-python-program-0.16.3/python/src/"
+    ],
+    "python.linting.enabled": false,
+    "python.analysis.extraPaths": [
+        "/home/pi/.vscode-server/extensions/stefanwehr.write-your-python-program-0.16.3/python/src/"
+    ]
+}
