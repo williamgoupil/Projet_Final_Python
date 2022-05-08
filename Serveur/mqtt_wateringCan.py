@@ -9,11 +9,12 @@ import logging
 import signal
 import sys
 import json
+import base64
 from time import sleep
 from gpiozero import Device, PWMLED
 from gpiozero.pins.pigpio import PiGPIOFactory
 import paho.mqtt.client as mqtt
-import RPi.GPIO as GPIO                                                              
+import RPi.GPIO as GPIO                                                         
 import time
 from objet import camera
 from objet import humiditySensor
@@ -34,7 +35,7 @@ Device.pin_factory = PiGPIOFactory() # Set GpioZero pour Pi par defaut
 BROKER_HOST = "localhost"  #Mettre l'adresse IP ici du serveur                                                                    
 BROKER_PORT = 1883
 CLIENT_ID = "WateringCanClient"                                                                         
-TOPIC = "watering"                                                                                   
+TOPIC = "projet/watering/+"                                                                                   
 client = None  # initialise le client mqtt     
 
 # initialize object
@@ -50,9 +51,33 @@ def init_wateringCan():
 
 
 # rajouter nos fonctions 
+def loopSendData():
+    global newHumiditySensor, newWaterLevelSensor, client
+    while True:
+        humidityValue = newHumiditySensor.getHumidity()
+        waterLevelValue = newWaterLevelSensor.getWaterLevel()
 
+        humidityString = str(humidityValue + '%')
+        waterLevelString= str(waterLevelValue + '%')
 
+        message_string = '{"humidity" :' +  humidityString + ', "waterLevel" : ' + waterLevelString + '}'
 
+        publish(client, 'projet/watering/WHL', message_string)
+        time.sleep(5)
+
+# Capture camera
+def captureCamera():
+    global newCamera
+
+    newCamera.removeImg('../mosquitto_www/img', 'image.jpeg')
+    newCamera.capture()
+
+    data = {}
+    with open('../mosquitto_www/img/image.jpeg', mode='rb') as file:
+        img = file.read()
+    data['img'] = base64.encodebytes(img).decode('utf-8')
+
+    publish(client, 'projet/watering/img', data)
 
 
 # Fonctions et callback relié a MQTT
@@ -65,11 +90,24 @@ def on_connect(client, user_data, flags, connection_result_code):
         logger.error("Non connectée au broker MQTT: " + mqtt.connack_string(connection_result_code))
 
     # Subscribe pour un topic
-    client.subscribe(TOPIC, qos=2)                                                             
+    client.subscribe(TOPIC, qos=2)    
 
 
+# deconnecter
 def on_disconnect(client, user_data, disconnection_result_code):                               
     logger.error("Déconnecté du broker MQTT")
+
+
+
+# A changer
+def publish(client, topic, message):
+    result = client.publish(topic, json.dumps(message))
+    status = status[0]
+    if status == 0:
+        print(f"message sent to '{topic}'")
+    else:
+        print(f"Failed to send message to '{topic}'")
+
 
 
 def on_message(client, userdata, msg):                                                         
@@ -84,13 +122,12 @@ def on_message(client, userdata, msg):
     
     #exemple de récupération de topic et d'envoi dans la bonne fonction
     """
-    if msg.topic == TOPIC:
-        if data['button'] == "alarme":
-            alarme()
-        elif data['button'] == "light":
-            light()
-        elif data['button'] == "door":
-            door()
+    if msg.topic == projet/watering/pump:
+        newPump.startPump()
+        logger.info('Starting pump')
+    elif msg.topic == projet/watering/img:
+        newCamera.capture()
+        logger.info('Camera capture')
     else:
         logger.error("Unhandled message topic {} with payload " + str(msg.topic, msg.payload))
     """
@@ -131,10 +168,8 @@ if __name__ == "__main__":
     client.loop_start()    
 
     #thread ?
-    """
     try :
-        blink()
+        loopSendData()
     finally:
         destroy()
-    """
     #signal.pause()
