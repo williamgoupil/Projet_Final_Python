@@ -13,7 +13,7 @@ class Camera :
     # capture l'image et la sauvegarde dans un dossier /img/
     def capture(self):
         self.camera.start_preview()
-        self.camera.capture('./img/image.jpeg')
+        self.camera.capture('../mosquitto_www/img/image.jpeg')
         self.camera.stop_preview()
 
     # enleve l'image en mémoire pour garder seulement la derniere img ?
