@@ -1,0 +1,75 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    background-color: #C8D463;
+}
+
+main {
+    width: 750px;
+    margin: 0 auto;
+    border:black solid 1px;
+    padding: 10px;
+    background-color: #ECE2D0;
+    height: 800px;
+    border-radius:10px;
+}
+
+.display-inline{
+    display: inline-block;
+    width:100%;
+}
+
+.display-inline > div{
+    padding:10px;
+    padding-left:50px;
+}
+
+.display-inline > div > label{
+    font-size:18px;
+    font-style: italic;
+}
+
+#pump{
+    width:21%;
+    font-size: 14px;
+    margin-left: 50px;
+}
+
+#humidity{
+    font-size: 14px;
+    width:21%;
+    margin-left: 78px;
+    text-align: end;
+}
+
+#waterLevel{
+    font-size: 14px;
+    width:21%;
+    margin-left: 98px;
+    text-align: end;
+}
+
+#captureImg{
+    font-size: 14px;
+    width:21%;
+    margin-left: 59px;
+}
+
+#imageJpeg{
+    width: 200px;
+    height: 200px;
+    border-radius:10px;
+    margin-top :50px;
+    margin-left:250px;
+    
+}
+
+h1{
+    text-align: center;
+}
+
+.hidden{
+    display:none;
+}

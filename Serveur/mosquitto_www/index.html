@@ -1,0 +1,224 @@
+<!-- Interface graphique pour l'arrosoir -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Systeme d'arrosoir automatique</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="./jquery.min.js"></script>
+    <script src="./paho-mqtt.js"></script>                                                   
+    <script type="text/javascript" charset="utf-8">
+    
+
+        const CLIENT_ID = String(Math.floor(Math.random() * 10e16))                      
+        const TOPIC   = "projet/watering/+";                                                                 
+
+        // Objet webSocket pour le client
+        const client = new Paho.Client(location.hostname, Number(location.port), CLIENT_ID);   
+
+        // Callback quand le client est connecter
+        onConnectionSuccess = function(data) {                                                 
+            console.log("Connected to MQTT Broker");
+            $("#connected").html("Oui");
+            client.subscribe(TOPIC);
+        };
+
+        client.connect({                                                                       
+           onSuccess: onConnectionSuccess,
+           reconnect: true
+        });
+
+        // Callback quand le client perd la connection au broker
+        client.onConnectionLost = function onConnectionLost(data) {                            
+
+            if (data.errorCode !== 0) {
+              console.log("Deconnecter du client MQTT avec l'erreur : " + data.errorMessage);
+            } else {
+              console.log("Deconnecter du client MQTT ");
+            }
+
+            $("#connected").html("Non");       
+        };
+
+        // Callback quand un message arrive avec sur un topic subscribe
+        client.onMessageArrived = function onMessageArrived(message) {                         
+
+            console.log("Message arriver : " + message.payloadString + " pour le topic " + message.destinationName);
+
+            var data = JSON.parse(message.payloadString);
+
+            if (message.destinationName === 'projet/watering/HL') {
+
+                $("input[type=text].humidityRate").val(data.humidity);
+                console.log(data.humidity);
+
+            }else if (message.destinationName === 'projet/watering/WL'){
+
+                $("input[type=text].waterLevelSensor").val(data.waterLevel);
+                console.log(data.waterLevel);
+                updateControls(data);
+            }
+        }
+
+        $(document).ready(function() {                                                         
+
+            $("#clientId").html(CLIENT_ID);
+
+            $("input[type=button].pumpClass").on('click', function(){
+                payload = { "button": "pump" }                        
+
+                var message = new Paho.Message(                                                
+                   JSON.stringify(payload)
+                );
+
+                let waterSensor = document.getElementById("waterLevel");
+                if (waterSensor.val == '10%' || waterSensor == '0%'){
+                    let messageHidden = document.getElementById("messagePump");
+                    messageHidden.classList.toggle('hidden');
+                }
+
+                message.destinationName = "projet/watering/pump";   
+				// message.qos = 0;
+                message.qos = 0;
+                message.retained = true;                                                       
+                client.send(message);
+            });
+        
+            $("input[type=button].img").on('click', function(){
+                payload = { "button": "img" }                        
+
+                var message = new Paho.Message(                                                
+                   JSON.stringify(payload)
+                );
+
+                message.destinationName = "projet/watering/img";                                               
+                message.qos = 0;
+                message.retained = true;    
+                console.log(message);                                                   
+                client.send(message);
+            });
+        });
+
+
+        function updateControls(data){
+            let element = null;
+            let x = document.getElementById("messagePump")
+            switch(data.waterLevel){
+                case '100%':   
+                    element = document.getElementById('waterStatus');   
+                    element.innerHTML = 'Ok !';
+                    element.style.color = 'Green';                                            
+                break;
+
+                case '90%':   
+                    element = document.getElementById('waterStatus');   
+                    element.innerHTML = 'Ok !';
+                    element.style.color = 'Green';                                         
+                break;
+
+                case '80%':      
+                    element = document.getElementById('waterStatus');   
+                    element.innerHTML = 'Ok !';
+                    element.style.color = 'Green';                       
+                break;
+
+                case '70%':     
+                    element = document.getElementById('waterStatus');   
+                    element.innerHTML = 'Ok !';
+                    element.style.color = 'Green';                    
+                break;
+
+                case '60%': 
+                    element = document.getElementById('waterStatus');   
+                    element.innerHTML = 'Ok !';
+                    element.style.color = 'Green';                    
+                break;
+
+                case '50%':    
+                    element = document.getElementById('waterStatus');   
+                    element.innerHTML = 'Medium';
+                    element.style.color = 'Orange';                      
+                break;
+
+                case '40%':    
+                    element = document.getElementById('waterStatus');   
+                    element.innerHTML = 'Medium';
+                    element.style.color = 'Orange';                      
+                break;
+
+                case '30%': 
+                    element = document.getElementById('waterStatus');   
+                    element.innerHTML = 'Medium';
+                    element.style.color = 'Orange';                    
+                break;
+
+                case '20%': 
+                    element = document.getElementById('waterStatus');   
+                    element.innerHTML = 'Medium';
+                    element.style.color = 'Orange';                    
+                break;
+
+                case '10%':  
+                    element = document.getElementById('waterStatus');   
+                    element.innerHTML = 'Critique';
+                    element.style.color = 'Red';          
+                break;
+
+                case '0%':    
+                    element = document.getElementById('waterStatus');   
+                    element.innerHTML = 'Critique';
+                    element.style.color = 'Red';
+                break;
+
+                default:
+                    console.log("Hello");
+        }
+        
+    }   
+    </script>
+</head>
+<body>
+    <main>
+		
+		<h1>Connection au serveur MQTT</h1>
+		
+        <div class="display-inline">
+			<div id="title">				
+				<b>CLIENT_ID: </b><span id="clientId">Non</span>
+				<br><br>
+				<b>Conneter au serveur MQTT : </b> <span id="connected">Non</span>
+				<br><br>
+			</div>
+			
+        </div>
+
+        <h1>Systeme d'arrosoir automatique</h1>
+		<div class="display-inline">
+			<div>
+				<label for="pump">Demarrer la pompe :  </label>
+				<input type="button" id="pump" class="pumpClass" value="Demarrer">
+                <span class="hidden" id="messagePump"> Veuillez rajouter de l'eau </span>
+			</div>
+			
+			<div>    
+				<label for="humidity">Taux d'humidite : </label>
+				<input type="text" id="humidity" class="humidityRate" value="" disabled>
+			</div>
+			
+			<div>
+				<label for="waterLevel">Niveau d'eau : </label>
+				<input type="text" id="waterLevel" class="waterLevelSensor" value="" disabled>
+                <span id="waterStatus"></span>
+			</div>
+			
+			<div>
+				<label for="captureImg">Prendre une photo : </label>
+				<input type="button" id="captureImg" class="img" value="Capturer">
+			</div>
+
+			
+			<input type="image" id="imageJpeg" src="img/image.jpeg"  value="icon.png">
+		</div>		
+
+    </main> 	
+</body>
+</html>
