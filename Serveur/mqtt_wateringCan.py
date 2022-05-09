@@ -19,15 +19,17 @@ from gpiozero.pins.pigpio import PiGPIOFactory
 import paho.mqtt.client as mqtt
 import RPi.GPIO as GPIO                                                         
 import time
-import objet.camera as camera
+from objet.ADCDevice import *
 from objet.camera import *
+from objet.humiditySensor import *
+from objet.pump import *
+from objet.waterLevelSensor import *
 
 
 # initialise l'enregistrement
 logging.basicConfig(level=logging.WARNING)  # configuration d'enregistrement globale 
 logger = logging.getLogger("main")  # utilisateur pour ce module
 logger.setLevel(logging.INFO) # Debugging pour ce fichier
-
 
 # initialise GPIO
 Device.pin_factory = PiGPIOFactory() # Set GpioZero pour Pi par defaut
@@ -39,6 +41,9 @@ CLIENT_ID = "WateringCanClient"
 TOPIC = "projet/watering/+"                                                                                   
 client = None  # initialise le client mqtt     
 
+#ADC
+adc = ADCDevice()
+
 # initialize object
 #newCamera = camera()
 #newHumiditySensor = humiditySensor(18) # mettre la pin approprié
@@ -48,17 +53,30 @@ client = None  # initialise le client mqtt
 
 # Fonction relié au GPIO
 def init_wateringCan():
+    global adc
     GPIO.setmode(GPIO.BCM)
+    
+    if(adc.detectI2C(0x48)): 
+        adc = PCF8591()
+    elif(adc.detectI2C(0x4b)):
+        adc = ADS7830()
+    else:
+        print("No correct I2C address found, \n"
+        "Please use command 'i2cdetect -y 1' to check the I2C address! \n"
+        "Program Exit. \n")
+        exit(-1)
 
 
 # rajouter nos fonctions 
 def loopSendData():
-    global client
+    global client, adc
     #newHumiditySensor, newWaterLevelSensor, client
     while True:
         #humidityValue = newHumiditySensor.getHumidity()
         #waterLevelValue = newWaterLevelSensor.getWaterLevel()
-
+           
+        #humidity = adc.analogRead(0)
+        
         humidityValue = 10
         waterLevelValue = 10
 
