@@ -20,6 +20,7 @@ import paho.mqtt.client as mqtt
 import RPi.GPIO as GPIO                                                         
 import time
 import objet.camera as camera
+from objet.camera import *
 
 
 # initialise l'enregistrement
