@@ -10,10 +10,9 @@ class WaterLevelSensor:
         self.waterLeveSensor_pin = waterLeveSensor_pin
         GPIO.setup(self.waterLeveSensor_pin, GPIO.IN)
 
-    def getWaterLevel(self):
-        return GPIO.input(self.waterLeveSensor_pin)
-
-
+    def getWaterLevel(self, inputSelect, adc):
+        return adc.analogRead(inputSelect)
+        
     def test(self):
         value = self.getWaterLevel()
         print(value)
