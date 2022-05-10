@@ -6,21 +6,21 @@ import math
 from ADCDevice import *
 
 class HumiditySensor:
-    def __init__(self, humiditySensor_pin):
-        self.humiditySensor_pin = humiditySensor_pin
-        GPIO.setup(self.humiditySensor_pin, GPIO.IN)
-        self.setup()
-
+    def __init__(self, humidity):
+        self.humidityValue = humidity
+    
+    def setHumidity(self, humidity):
+        self.humidityValue = humidity
             
             
-    def getHumidity(self, inputSelect,adc):
+    def getHumidity(self, humidity):
+        if humidity > 0 
+        
+        
+        
         return adc.analogRead(inputSelect)
 
-    def test(self, inputSelect):
-        value = self.getHumidity(inputSelect)
-
-        print(value)
-
-        GPIO.cleanup()
+    def print(self):
+        print(self.humidityValue)
 
 
