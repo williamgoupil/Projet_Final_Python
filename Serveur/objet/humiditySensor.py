@@ -14,12 +14,12 @@ class HumiditySensor:
             
             
     def getHumidity(self, humidity):
-        if humidity > 0 
-        
-        
-        
-        return adc.analogRead(inputSelect)
+        return self.humidityValue
 
+    def convertValue(self, humidity):
+        #code convertion
+    
+    
     def print(self):
         print(self.humidityValue)
 
