@@ -11,18 +11,14 @@ class WaterLevelSensor:
 
 
     def getWaterLevel(self, inputSelect, adc):
-        return adc.analogRead(inputSelect)
+        return self.waterLevel
         
     def setWaterLevel(self, waterLevel):
         self.waterLevel = waterLevel
             
             
-    def getWaterLevel(self, waterLevel):
-        if waterLevel > 0 
-        
-        
-        
-        #return adc.analogRead(inputSelect)
+    def convertValue(self, waterLevel):
+        # code convertion
 
     def print(self):
         print(self.waterLevel)
