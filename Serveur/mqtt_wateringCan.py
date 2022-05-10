@@ -46,8 +46,8 @@ adc = ADCDevice()
 
 # initialize object
 #newCamera = camera()
-#newHumiditySensor = humiditySensor(18) # mettre la pin approprié
-#newWaterLevelSensor = waterLevelSensor(18) # mettre la pin approprié
+newHumiditySensor = humiditySensor() # mettre la pin approprié
+newWaterLevelSensor = waterLevelSensor() # mettre la pin approprié
 #newPump = pump(18) # mettre la pin approprié
 
 
@@ -69,16 +69,14 @@ def init_wateringCan():
 
 # rajouter nos fonctions 
 def loopSendData():
-    global client, adc
-    #newHumiditySensor, newWaterLevelSensor, client
-    while True:
-        #humidityValue = newHumiditySensor.getHumidity()
-        #waterLevelValue = newWaterLevelSensor.getWaterLevel()
-           
-        #humidity = adc.analogRead(0)
+    global client, adc, newHumiditySensor, newWaterLevelSensor
+    while True:  
+        humidity = adc.analogRead(0)
+        waterLevel = adc.analogRead(2)
         
-        humidityValue = 10
-        waterLevelValue = 10
+        
+        humidityValue = newHumiditySensor.convertValue(humidity)
+        waterLevelValue = waterLevelValue.converValue(waterLevel)
 
         humidityString = (str(humidityValue) + '%')
         waterLevelString= (str(waterLevelValue) + '%')
